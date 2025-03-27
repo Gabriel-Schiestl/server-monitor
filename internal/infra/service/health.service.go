@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -28,9 +29,16 @@ func (s *healthService) Check() {
 
 func (s *healthService) checkServers() {
 	for _, server := range s.health.Servers {
-		url := server.Host + ":" + strconv.Itoa(server.Port)
-		date := time.Now().Format("2006-01-02 15:04:05")
+		var url string
 
+		if server.Port == 0 {
+			url = server.Host
+		} else {
+			url = server.Host + ":" + strconv.Itoa(server.Port)
+		}
+		
+		date := time.Now().Format("2006-01-02 15:04:05")
+		fmt.Println("Checking server: ", url)
 		if server.Status != "ENABLED" {
 			s.health.Logs <- model.Log{
 				ServerID: 	server.ID,
